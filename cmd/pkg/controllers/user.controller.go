@@ -11,12 +11,12 @@ type UserController struct {
 	UserService *services.UserService
 }
 
-func (userController *UserController) CreateUser(context *gin.Context) {
+func (userController *UserController) CreateUser(ctx *gin.Context) {
 
 	var req services.UserCreatRequest
 
-	if err := context.ShouldBindJSON(&req); err != nil {
-		context.JSON(http.StatusBadRequest, models.PayLoadResponse{
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, models.PayLoadResponse{
 			Status:  "error",
 			Message: "error when processing user data: " + err.Error(),
 			Data:    nil,
@@ -25,7 +25,7 @@ func (userController *UserController) CreateUser(context *gin.Context) {
 	}
 
 	if err := userController.UserService.CreateUser(req); err != nil {
-		context.JSON(http.StatusBadRequest, models.PayLoadResponse{
+		ctx.JSON(http.StatusBadRequest, models.PayLoadResponse{
 			Status:  "error",
 			Message: "error creating user: " + err.Error(),
 			Data:    nil,
@@ -33,7 +33,7 @@ func (userController *UserController) CreateUser(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusCreated, models.PayLoadResponse{
+	ctx.JSON(http.StatusCreated, models.PayLoadResponse{
 		Status:  "created",
 		Message: "user created successfully!",
 		Data:    req,

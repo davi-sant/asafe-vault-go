@@ -12,7 +12,7 @@ func UserRoutes(r *gin.Engine, userService *services.UserService) {
 	admin := os.Getenv("ADMIN")
 	password := os.Getenv("PASSWORD")
 	userController := controllers.UserController{UserService: userService}
-	ur := r.Group("v1/register", gin.BasicAuth(gin.Accounts{admin: password}))
+	ur := r.Group("v1/users", gin.BasicAuth(gin.Accounts{admin: password}))
 	{
 		ur.POST("/", userController.CreateUser)
 		ur.GET("/", userController.GetUserBayEmail)
