@@ -21,7 +21,7 @@ func NewPasswordServiceRepository(repository repositories.PasswordRepository) *P
 }
 
 func (service *PasswordServiceRepository) Create(payload PasswordCreateRequest) error {
-	
+
 	password := models.Password{
 		UserId:          payload.UserId,
 		ServiceName:     payload.ServiceName,
@@ -29,4 +29,12 @@ func (service *PasswordServiceRepository) Create(payload PasswordCreateRequest) 
 		ServicePassword: payload.ServicePassword,
 	}
 	return service.repository.Create(password)
+}
+
+func (service *PasswordServiceRepository) GetAllPasswords(id int64) ([]models.Password, error) {
+	return service.repository.GetAll(id)
+}
+
+func (service *PasswordServiceRepository) GetPasswordsByServiceName(id int64, service_name string) ([]models.Password, error) {
+	return service.repository.GetPasswordByServiceName(id, service_name)
 }

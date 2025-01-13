@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/davi-sant/asafe-vault-go/cmd/internal/models"
 	"github.com/davi-sant/asafe-vault-go/cmd/internal/services"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 type PasswordServiceController struct {
@@ -32,6 +35,7 @@ func (c *PasswordServiceController) CreatePassword(ctx *gin.Context) {
 		})
 		return
 	}
+
 	if len(strings.TrimSpace(req.ServiceName)) <= 0 {
 		ctx.JSON(http.StatusBadRequest, models.PayLoadResponse{
 			Status:  "error",
@@ -49,6 +53,7 @@ func (c *PasswordServiceController) CreatePassword(ctx *gin.Context) {
 		})
 		return
 	}
+
 	if err := c.PasswordServiceRepository.Create(req); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.PayLoadResponse{
 			Status:  "error",
@@ -66,4 +71,77 @@ func (c *PasswordServiceController) CreatePassword(ctx *gin.Context) {
 
 }
 
-func (c *PasswordServiceController) GetPassword(context *gin.Context) {}
+func (s *PasswordServiceController) GetAllPasswords(context *gin.Context) {
+
+	id := context.Query("user_id")
+
+	if strings.TrimSpace(id) == "" {
+		context.JSON(http.StatusInternalServerError, models.PayLoadResponse{
+			Status:  "error",
+			Message: "error User id  is not empty",
+			Data:    nil,
+		})
+		return
+	}
+	value, err := strconv.ParseInt(id, 0, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, models.PayLoadResponse{
+			Status:  "error",
+			Message: "error 'ID_USER' is not Int64",
+			Data:    nil,
+		})
+		return
+	}
+
+	passwords, err := s.PasswordServiceRepository.GetAllPasswords(value)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, models.PayLoadResponse{
+			Status:  "error",
+			Message: "error fetching passwords",
+			Data:    nil,
+		})
+		return
+	}
+
+	context.JSON(http.StatusOK, models.PayLoadResponse{
+		Status:  "success",
+		Message: "Search successful",
+		Data:    passwords,
+	})
+
+}
+func (s *PasswordServiceController) GetPasswordsByServiceName(context *gin.Context) {
+
+	id := context.Query("user_id")
+	service_name := context.Query("service_name")
+	fmt.Println(id, service_name)
+	value, err := strconv.ParseInt(id, 0, 64)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, models.PayLoadResponse{
+			Status:  "error",
+			Message: "error 'ID_USER' is not Int64",
+			Data:    nil,
+		})
+		return
+	}
+
+	rows, err := s.PasswordServiceRepository.GetPasswordsByServiceName(value, service_name)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, models.PayLoadResponse{
+			Status:  "error",
+			Message: "error fetching passwords",
+			Data:    nil,
+		})
+		return
+	}
+
+	context.JSON(http.StatusOK, models.PayLoadResponse{
+		Status:  "success",
+		Message: "Search password by service name successful",
+		Data:    rows,
+	})
+
+}
