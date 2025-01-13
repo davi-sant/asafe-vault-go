@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func DBConnection() (*sql.DB, error) {
+	if err := godotenv.Load(); err != nil {
+		return nil, err
+	}
 
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
